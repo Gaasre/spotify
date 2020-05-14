@@ -2,6 +2,11 @@ var axios = require('axios');
 var fs = require('fs');
 var tracks_evolved = [];
 
+//Global config
+let API_KEY = 'BQDoPa8J2pr6Se0wWbRuaDEU6ucPkVb5yVBTEhfTIeP_JCRF-jzpKNwqZLZ5EkRRstXou29dDqYZd9tALMWUL-F-gLhS4fzlms175NkKZcc7TsLwlr9eGbXCU2B-VO1POzMFdH9XuK7mXk420bFd_c7pHMzutnWE3Qb2vw';
+let PLAYLIST_ID = '0hfsNLZls6QZcmn1khi0fw';
+let ROOM_NAME = 'French music';
+
 // Set up mongoose connection
 const mongoose = require('mongoose');
 let dev_db_url = 'mongodb://localhost:27017/quiz';
@@ -15,13 +20,13 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 const Schema = mongoose.Schema;
 
-let UserSchema = new Schema({
+let RoomSchema = new Schema({
     name: { type: String },
     img: { type: String },
-    songs: { type: Array},
+    songs: { type: Array },
 });
 
-var Room = mongoose.model('Rooms', UserSchema, 'rooms');
+var Room = mongoose.model('Rooms', RoomSchema, 'rooms');
 
 function updateSongs(room, song) {
     Room.find({ name: room }, (err, document) => {
@@ -35,29 +40,14 @@ function updateSongs(room, song) {
     })
 }
 
-Room.find({}, (err, document) => {
-    if (err) {
-        console.log(err);
-    } else {
-        fs.writeFile("test.json", JSON.stringify(document), function (err) {
-            if (err) {
-                console.log(err);
-            }
-        });
-    }
-})
-
-// Uncomment to save to file
-
-/*for (var i = 0; i < 400; i+=100) {
-    axios.get('https://api.spotify.com/v1/playlists/0hfsNLZls6QZcmn1khi0fw/tracks?limit=100&offset=' + i, {
+for (var i = 0; i < 400; i+=100) {
+    axios.get('https://api.spotify.com/v1/playlists/' + PLAYLIST_ID + '/tracks?limit=100&offset=' + i, {
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer BQDoPa8J2pr6Se0wWbRuaDEU6ucPkVb5yVBTEhfTIeP_JCRF-jzpKNwqZLZ5EkRRstXou29dDqYZd9tALMWUL-F-gLhS4fzlms175NkKZcc7TsLwlr9eGbXCU2B-VO1POzMFdH9XuK7mXk420bFd_c7pHMzutnWE3Qb2vw'
+            'Authorization': 'Bearer ' + API_KEY
         }
     })
     .then(function (response) {
-
         var tracks = response.data.items;
         tracks.forEach(element => {
             var track = element.track;
@@ -68,10 +58,9 @@ Room.find({}, (err, document) => {
                 preview: track.preview_url
             }
             if (added_track.preview) {
-                updateSongs('French music', added_track);
+                updateSongs(ROOM_NAME, added_track);
             }
         });
-        
     })
     .catch(function (error) {
         console.log(error);
@@ -79,4 +68,4 @@ Room.find({}, (err, document) => {
     .then(function () {
         // always executed
     });
-}*/
+}
